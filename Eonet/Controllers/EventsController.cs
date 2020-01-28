@@ -20,33 +20,36 @@ namespace Eonet.Controllers
         public IEnumerable<Event> GetEvent()
         {
             String url = "https://eonet.sci.gsfc.nasa.gov/api/v2.1/events";
-            string response = string.Empty;
-            HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create("https://eonet.sci.gsfc.nasa.gov/api/v2.1/events");
-            httpWebRequest.ContentType = "application/json; charset=utf-8";
-            httpWebRequest.Method = "GET";
-            httpWebRequest.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-            HttpWebResponse httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-            using (StreamReader streamReader = new StreamReader(httpResponse.GetResponseStream()))
-            {
-                response = streamReader.ReadToEnd();
-            }
-            httpResponse.Close();
 
+            EonetWebRequest eoweb = new EonetWebRequest();
+            string response=eoweb.GetResponse(url);
             JObject o = JObject.Parse(response);
-
             JArray a = (JArray)o["events"];
-
             List<Event> a2 = new List<Event>();
-
-           
             List<Event> events = a.ToObject<List<Event>>();
 
             return events;
-
-           // return new string[] { "value1", "value2" };
-
-
         }
+
+        public IEnumerable<Category> getEventCategories()
+        {
+            String url = "https://eonet.sci.gsfc.nasa.gov/api/v3-beta/categories";
+            
+            EonetWebRequest eoweb = new EonetWebRequest();
+
+            string response=eoweb.GetResponse(url);
+
+            JObject o = JObject.Parse(response);
+
+            JArray categories = (JArray)o["categories"];
+
+
+            List<Category> categoriesResult = categories.ToObject<List<Category>>();
+
+
+            return categoriesResult;
+        }
+
 
         [Route("FilterEvents")]
         [AcceptVerbs("GET", "POST")]
@@ -58,6 +61,7 @@ namespace Eonet.Controllers
             var searched= serachedEvent.Where(f => f.categories[0].title == category ||  f.closed == null).ToList();
             return serachedEvent;
         }
+
 
         [Route("SortEvents")]
         [AcceptVerbs("GET", "POST")]
