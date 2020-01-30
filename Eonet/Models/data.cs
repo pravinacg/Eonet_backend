@@ -10,7 +10,7 @@ namespace EONET.Models
 
             public class Category
             {
-                public int id { get; set; }
+                public string id { get; set; }
                 public string title { get; set; }
             }
 

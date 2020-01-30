@@ -1,7 +1,10 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Cors;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
+using System.Web.Http.Cors;
+
 
 namespace Eonet
 {
@@ -10,8 +13,9 @@ namespace Eonet
         public static void Register(HttpConfiguration config)
         {
             // Web API configuration and services
-
+            var cors = new System.Web.Http.Cors.EnableCorsAttribute("http://localhost:4200", "*", "*");
             // Web API routes
+            config.EnableCors(cors); 
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(

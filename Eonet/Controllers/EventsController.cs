@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Cors;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -8,28 +9,40 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Helpers;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using System.Web.Script.Serialization;
 using static EONET.Models.ResponseClass;
 
 namespace Eonet.Controllers
 {
     [RoutePrefix("api/Events")]
+    [System.Web.Http.Cors.EnableCors("http://localhost:4200", headers: "*", methods: "*")]
     public class EventsController : ApiController
     {
         // GET api/values
-        public IEnumerable<Event> GetEvent()
+        [AcceptVerbs("GET")]
+        [HttpGet]
+        public IEnumerable<Event> Events()
         {
             String url = "https://eonet.sci.gsfc.nasa.gov/api/v2.1/events";
 
             EonetWebRequest eoweb = new EonetWebRequest();
+
             string response=eoweb.GetResponse(url);
-            JObject o = JObject.Parse(response);
-            JArray a = (JArray)o["events"];
-            List<Event> a2 = new List<Event>();
-            List<Event> events = a.ToObject<List<Event>>();
+
+            JObject rootEonet = JObject.Parse(response);
+
+            JArray oEvents = (JArray)rootEonet["events"];
+            
+            List<Event> events = oEvents.ToObject<List<Event>>();
 
             return events;
         }
+
+
+        [Route("EventCategories")]
+        [AcceptVerbs("GET")]
+        [HttpGet]
 
         public IEnumerable<Category> getEventCategories()
         {
@@ -39,9 +52,9 @@ namespace Eonet.Controllers
 
             string response=eoweb.GetResponse(url);
 
-            JObject o = JObject.Parse(response);
+            JObject oCategories = JObject.Parse(response);
 
-            JArray categories = (JArray)o["categories"];
+            JArray categories = (JArray)oCategories["categories"];
 
 
             List<Category> categoriesResult = categories.ToObject<List<Category>>();
@@ -56,9 +69,10 @@ namespace Eonet.Controllers
         [HttpGet]
         public IEnumerable<Event> FilterEvents(string status , string category)
         {
-            List<Event> serachedEvent = GetEvent().ToList();
+            List<Event> serachedEvent = Events().ToList();
             
             var searched= serachedEvent.Where(f => f.categories[0].title == category ||  f.closed == null).ToList();
+
             return serachedEvent;
         }
 
@@ -68,14 +82,15 @@ namespace Eonet.Controllers
         [HttpGet]
         public IEnumerable<Event> SortEvents(string orderby, string col)
         {
-            List<Event> serachedEvent = GetEvent().ToList();
+            List<Event> serachedEvent = Events().ToList();
+
             if(orderby == "desc")
             {
-                return  serachedEvent.OrderByDescending(x => x.categories[0].title).ToList();
+                var d=  serachedEvent.OrderByDescending(x => x.categories[0].title).ToList();
             }
             else
             {
-                return serachedEvent.OrderByDescending(x => x.categories[0].title).ToList();
+                var a= serachedEvent.OrderByDescending(x => x.categories[0].title).ToList();
             }
            
           

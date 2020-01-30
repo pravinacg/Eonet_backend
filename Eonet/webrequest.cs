@@ -13,19 +13,51 @@ namespace Eonet
         {
             string response = string.Empty;
 
-            HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create("https://eonet.sci.gsfc.nasa.gov/api/v2.1/events");
-            httpWebRequest.ContentType = "application/json; charset=utf-8";
-            httpWebRequest.Method = "GET";
-            httpWebRequest.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-            HttpWebResponse httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-            using (StreamReader streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            try
             {
-                response = streamReader.ReadToEnd();
-            }
-            httpResponse.Close();
+                HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(Url);
 
+                httpWebRequest.ContentType = "application/json; charset=utf-8";
+
+                httpWebRequest.Method = "GET";
+
+                httpWebRequest.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+                HttpWebResponse httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+
+                response = ParseResponse(httpResponse);
+                
+                httpResponse.Close();
+
+            }
+            catch(Exception ex)
+            {
+                //error logging 
+                response = ex.InnerException.ToString();
+            }
             return response;
 
         }
+
+        public string ParseResponse(HttpWebResponse eonetWebResponse)
+        {
+            string response = "";
+             if (eonetWebResponse.StatusCode != HttpStatusCode.OK)
+            {
+                //can be addded different status check here 
+                response= "problem in webservice";
+            }
+            else
+            {
+                using (StreamReader streamReader = new StreamReader(eonetWebResponse.GetResponseStream()))
+                {
+                    response = streamReader.ReadToEnd();
+                }
+            }
+
+            return response;
+        }
+
+
     }
 }
