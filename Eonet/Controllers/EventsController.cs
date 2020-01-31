@@ -40,6 +40,26 @@ namespace Eonet.Controllers
         }
 
 
+        [Route("GeteventsByDate")]
+        [AcceptVerbs("GET")]
+        [HttpGet]
+        public IEnumerable<Event> GeteventsByDate(string start,string end)
+        {
+            String url = "https://eonet.sci.gsfc.nasa.gov/api/v3-beta/events?start=" + start+"&end="+end;
+
+            EonetWebRequest eoweb = new EonetWebRequest();
+
+            string response = eoweb.GetResponse(url);
+
+            JObject rootEonet = JObject.Parse(response);
+
+            JArray oEvents = (JArray)rootEonet["events"];
+
+            List<Event> events = oEvents.ToObject<List<Event>>();
+
+            return events;
+        }
+
         [Route("EventCategories")]
         [AcceptVerbs("GET")]
         [HttpGet]
@@ -86,15 +106,17 @@ namespace Eonet.Controllers
 
             if(orderby == "desc")
             {
-                var d=  serachedEvent.OrderByDescending(x => x.categories[0].title).ToList();
+                return  serachedEvent.OrderByDescending(x => x.categories[0].title).ToList();
             }
             else
             {
-                var a= serachedEvent.OrderByDescending(x => x.categories[0].title).ToList();
+                return serachedEvent.OrderBy(x => x.categories[0].title).ToList();
             }
            
           
         }
+
+
         private static T Deserialize<T>(string response)
         {
             JsonSerializer json = new JsonSerializer();
