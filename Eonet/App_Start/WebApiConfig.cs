@@ -13,9 +13,10 @@ namespace Eonet
         public static void Register(HttpConfiguration config)
         {
             // Web API configuration and services
-            var cors = new System.Web.Http.Cors.EnableCorsAttribute("http://localhost:4200", "*", "*");
+          //  var cors = new System.Web.Http.Cors.EnableCorsAttribute("http://localhost:3000/", "", "*");
             // Web API routes
-            config.EnableCors(cors); 
+           config.EnableCors();
+           
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
