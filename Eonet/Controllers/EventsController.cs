@@ -110,9 +110,8 @@ namespace Eonet.Controllers
         {
             List<Event> serachedEvent = Events().ToList();
 
-            var searched = serachedEvent.Where(f => f.categories[0].title == category || f.closed == null).ToList();
+            return serachedEvent.Where(f => f.categories[0].title.ToLower() == category.ToLower() && f.closed == null).ToList();
 
-            return serachedEvent;
         }
 
 
